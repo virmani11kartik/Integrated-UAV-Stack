@@ -138,7 +138,7 @@ public:
   URosBridge() : Node("ros_to_esp_rc") {
     port_          = declare_parameter<std::string>("port", "/dev/ttyACM0");
     baud_          = declare_parameter<int>("baud", 115200);
-    rate_hz_       = declare_parameter<double>("rate_hz", 50.0);
+    rate_hz_       = declare_parameter<double>("rate_hz", 150.0);
     debug_         = declare_parameter<bool>("debug", false);
     rc_timeout_ms_ = declare_parameter<int>("rc_timeout_ms", 300);  // NEW
 

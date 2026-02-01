@@ -46,7 +46,7 @@ MARK4_CFG = ArticulationCfg(
     prim_path="{ENV_REGEX_NS}/Robot",
     collision_group=0,
     spawn=sim_utils.UsdFileCfg(
-        # TODO: replace with your Mark4 USD path
+        # TODO: replace with  Mark4 USD path
         usd_path=f"usd/mark4.usda",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
@@ -191,7 +191,7 @@ class QuadcopterEnvCfg(DirectRLEnvCfg):
     # ---------------------------------------------------------------
     # Arm length: center-to-motor distance.
     # Mark4 diagonal ~295-310 mm  →  arm ≈ 150 mm.
-    arm_length: float = 0.150                # TODO: measure your frame
+    arm_length: float = 0.150                # TODO: measure frame
 
     # Thrust coefficient  k_eta:  F = k_eta * omega^2  (per motor)
     # Bench-test range for 1350KV + 7" props: 1.5e-5 … 3e-5
