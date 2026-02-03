@@ -4,9 +4,12 @@
 #include <Arduino.h>
 
 // ------------------------- Bind phrase / UID -------------------------
-// Same phrase on TX and RX for binding. Max 6 bytes used for UID.
+// Option A (phrase bind): Same phrase on TX and RX. Max 6 bytes used for UID.
+// Option B (classic bind): TX broadcasts UID, RX auto-binds. Set ELRS_CLASSIC_BIND=1.
 #define ELRS_BIND_PHRASE "elrsuav"
 #define ELRS_UID_LEN 6
+#define ELRS_CLASSIC_BIND 1   // 1 = broadcast & auto-bind; 0 = use bind phrase
+#define ELRS_BIND_INTERVAL_PACKETS 25  // TX sends BIND every N packets (classic bind only)
 
 // ------------------------- Radio (SX1280) pins -------------------------
 // ESP32-C3 available GPIOs only: 0, 1, 4, 5, 6, 7, 10, 18, 19

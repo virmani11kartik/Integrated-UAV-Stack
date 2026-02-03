@@ -8,6 +8,7 @@
 #define PACKET_TYPE_RCDATA  0b00
 #define PACKET_TYPE_DATA    0b01
 #define PACKET_TYPE_SYNC    0b10
+#define PACKET_TYPE_BIND    0b11
 
 // 4 channels packed as 4x10-bit in 5 bytes
 typedef struct PACKED {
@@ -23,6 +24,11 @@ typedef struct PACKED {
     uint8_t UID5;
 } OTA_Sync_t;
 
+// BIND packet: full 6-byte UID. CRC uses fixed key so RX can validate without UID.
+typedef struct PACKED {
+    uint8_t UID[6];
+} OTA_Bind_t;
+
 typedef struct PACKED {
     uint8_t type : 2, crcHigh : 6;
     union {
@@ -31,6 +37,7 @@ typedef struct PACKED {
             uint8_t switches : 7, isArmed : 1;
         } rc;
         OTA_Sync_t sync;
+        OTA_Bind_t bind;
     };
     uint8_t crcLow;
 } OTA_Packet4_t;
@@ -49,3 +56,5 @@ void OtaPackRcData(OTA_Packet4_t* pkt, const uint32_t* channelData);
 bool OtaUnpackRcData(const OTA_Packet4_t* pkt, uint32_t* channelData);
 
 void OtaPackSync(OTA_Packet4_t* pkt, uint8_t fhssIndex, uint8_t rfRateEnum, const uint8_t* uid);
+void OtaPackBind(OTA_Packet4_t* pkt, const uint8_t* uid);
+bool OtaValidateBindPacket(OTA_Packet4_t* pkt, uint8_t* uidOut);

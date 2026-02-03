@@ -28,7 +28,8 @@ void OtaInitCrcFromUid(const uint8_t* uid) {
 }
 
 void OtaGenerateCrc(OTA_Packet4_t* pkt) {
-    uint16_t nonceVal = (pkt->type == PACKET_TYPE_SYNC) ? 0 : OtaNonce;
+    uint8_t t = pkt->type & 0x03;
+    uint16_t nonceVal = (t == PACKET_TYPE_SYNC || t == PACKET_TYPE_BIND) ? 0 : OtaNonce;
     uint16_t init = OtaCrcInitializer ^ (nonceVal << 8);
     uint8_t crc = crc8_dvb((uint8_t*)pkt, OTA_CRC_CALC_LEN, init & 0xFF);
     crc ^= (init >> 8) & 0xFF;
@@ -99,4 +100,32 @@ void OtaPackSync(OTA_Packet4_t* pkt, uint8_t fhssIndex, uint8_t rfRateEnum, cons
     pkt->sync.free = 0;
     pkt->sync.UID4 = uid[4];
     pkt->sync.UID5 = uid[5];
+}
+
+// Fixed CRC init for BIND packets so RX can validate without knowing UID
+#define BIND_CRC_INIT_H 0xAB
+#define BIND_CRC_INIT_L 0xCD
+
+void OtaPackBind(OTA_Packet4_t* pkt, const uint8_t* uid) {
+    pkt->type = PACKET_TYPE_BIND;
+    memcpy(pkt->bind.UID, uid, 6);
+    // CRC with fixed init
+    uint16_t saveInit = OtaCrcInitializer;
+    OtaCrcInitializer = ((uint16_t)BIND_CRC_INIT_H << 8) | BIND_CRC_INIT_L;
+    OtaGenerateCrc(pkt);
+    OtaCrcInitializer = saveInit;
+}
+
+bool OtaValidateBindPacket(OTA_Packet4_t* pkt, uint8_t* uidOut) {
+    if ((pkt->type & 0x03) != PACKET_TYPE_BIND) return false;
+    pkt->type &= 0x03;
+    uint16_t saveInit = OtaCrcInitializer;
+    OtaCrcInitializer = ((uint16_t)BIND_CRC_INIT_H << 8) | BIND_CRC_INIT_L;
+    uint16_t init = OtaCrcInitializer;  // nonce = 0 for bind
+    uint8_t crc = crc8_dvb((uint8_t*)pkt, OTA_CRC_CALC_LEN, init & 0xFF);
+    crc ^= (init >> 8) & 0xFF;
+    OtaCrcInitializer = saveInit;
+    if (crc != pkt->crcLow) return false;
+    if (uidOut) memcpy(uidOut, pkt->bind.UID, ELRS_UID_LEN);
+    return true;
 }
