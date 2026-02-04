@@ -8,7 +8,9 @@ ESP32-C3 **Transmitter (TX)** and **Receiver (RX)** using an ExpressLRS-compatib
 - **Radio**: SX1280 2.4 GHz module (SPI: NSS, SCK, MISO, MOSI; DIO1, RST, BUSY).
 - **UART**: CRSF @ 420000 baud (TX: from computer; RX: to flight controller).
 
-Pin definitions are in `src/config.h`. Only these ESP32-C3 GPIOs are used: **0, 1, 4, 5, 6, 7, 10, 18, 19**.
+Pin definitions are in `src/config.h`. See **[PINOUT.md](PINOUT.md)** for a wiring diagram.
+
+Only these ESP32-C3 GPIOs are used: **0, 1, 4, 5, 6, 7, 10, 18, 19**.
 
 | Signal   | GPIO |
 |----------|------|
