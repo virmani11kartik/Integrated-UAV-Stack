@@ -15,9 +15,15 @@ extern void ELRS_RX_Loop();
 #endif
 
 void setup() {
+#if ELRS_LOG_PORT == 0
     Serial.begin(115200);
     delay(500);
     Serial.println("ELRS UAV-Controller");
+#elif ELRS_LOG_PORT == 1
+    Serial1.begin(115200);
+    delay(500);
+    Serial1.println("ELRS UAV-Controller");
+#endif
 
 #if defined(BUILD_ELRS_TX)
     ELRS_TX_Setup();

@@ -5,7 +5,7 @@
 #include "crsf_serial.h"
 #include "ota.h"
 #include "fhss.h"
-#include "radio_sx1280.h"
+#include "radio.h"
 #include "hw_timer.h"
 #include <Arduino.h>
 #if ELRS_CLASSIC_BIND
@@ -20,8 +20,11 @@ static bool s_sendingSync = false;
 #if ELRS_CLASSIC_BIND
 static uint8_t s_packetCounter = 0;
 #endif
+#if ELRS_USE_E28
+static uint32_t s_lastTxUs = 0;
+#endif
 
-static void txTimerCallback() {
+static void txSendPacket() {
     OTA_Packet4_t pkt;
     bool sendBind = false;
 #if ELRS_CLASSIC_BIND
@@ -58,6 +61,12 @@ static void txTimerCallback() {
     s_syncCounter++;
 }
 
+#if !ELRS_USE_E28
+static void txTimerCallback() {
+    txSendPacket();
+}
+#endif
+
 void ELRS_TX_Setup() {
     memset(s_uid, 0, ELRS_UID_LEN);
 #if ELRS_CLASSIC_BIND
@@ -74,18 +83,22 @@ void ELRS_TX_Setup() {
     for (int i = 0; i < CRSF_NUM_CHANNELS; i++)
         s_crsfChannels[i] = CRSF_CHANNEL_VALUE_MID;
 
-    Crsf.begin(&Serial1, CRSF_PIN_TX, CRSF_PIN_RX);
+    Crsf.begin(GetSerialByPort(CRSF_UART_PORT), CRSF_PIN_TX, CRSF_PIN_RX);
 
     if (!Radio.begin(s_uid)) {
-        Serial.println("[ELRS TX] Radio init failed");
+        if (auto log = GetLogSerial()) log->println("[ELRS TX] Radio init failed");
         return;
     }
     Radio.setFrequency(FHSSGetInitialFreq());
 
+#if !ELRS_USE_E28
     HwTimerInit(txTimerCallback);
     HwTimerSetIntervalUs(ELRS_PACKET_INTERVAL_US);
     HwTimerStart();
-    Serial.println("[ELRS TX] Started");
+#else
+    s_lastTxUs = micros();
+#endif
+    if (auto log = GetLogSerial()) log->println("[ELRS TX] Started");
 }
 
 void ELRS_TX_Loop() {
@@ -94,6 +107,13 @@ void ELRS_TX_Loop() {
         Crsf.getChannels(s_crsfChannels);
         Crsf.clearNewChannels();
     }
+#if ELRS_USE_E28
+    uint32_t now = micros();
+    if ((uint32_t)(now - s_lastTxUs) >= ELRS_PACKET_INTERVAL_US) {
+        s_lastTxUs = now;
+        txSendPacket();
+    }
+#endif
 }
 
 #endif

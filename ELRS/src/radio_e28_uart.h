@@ -1,15 +1,13 @@
-// SX1280 radio wrapper using RadioLib (ELRS FLRC 500 Hz, 8-byte packet)
+// Ebyte E28-2G4T12S UART radio wrapper (transparent transmission)
 #pragma once
 
 #include "config.h"
+#include <Arduino.h>
 
-#define ELRS_RF_RATE_ENUM 0  // single rate for now
-
-#if !ELRS_USE_E28
-#include <RadioLib.h>
-class RadioSX1280 {
+#if ELRS_USE_E28
+class RadioE28Uart {
 public:
-    RadioSX1280();
+    RadioE28Uart();
     bool begin(const uint8_t* uid);
     void setFrequency(uint32_t regFreq);
     void transmit(uint8_t* data, uint8_t len);
@@ -20,10 +18,8 @@ public:
     void clearIrq();
 
 private:
-    SX1280* radio_;
-    Module* mod_;
-    bool ok_;
+    HardwareSerial* serial_;
 };
 
-extern RadioSX1280 Radio;
+extern RadioE28Uart Radio;
 #endif

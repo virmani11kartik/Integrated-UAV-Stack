@@ -1,6 +1,8 @@
 #include "radio_sx1280.h"
 #include "fhss.h"
 
+#if !ELRS_USE_E28
+
 static Module* mod = nullptr;
 static SX1280* sx = nullptr;
 
@@ -36,7 +38,7 @@ bool RadioSX1280::begin(const uint8_t* uid) {
 
 void RadioSX1280::setFrequency(uint32_t regFreq) {
     if (!ok_ || !sx) return;
-    // SX1280: freq = 52e6/2^18 * reg ≈ 198.36 Hz per step. 2400 MHz = base.
+    // SX1280: freq = 52e6/2^18 * reg ~= 198.36 Hz per step. 2400 MHz = base.
     float freqMHz = 2400.0f + (regFreq * 198.364f / 1e6f);
     sx->setFrequency(freqMHz);
 }
@@ -70,3 +72,5 @@ bool RadioSX1280::isRxDone() {
 void RadioSX1280::clearIrq() {
     (void)sx;  // clearIrqStatus is protected; library clears IRQ internally
 }
+
+#endif

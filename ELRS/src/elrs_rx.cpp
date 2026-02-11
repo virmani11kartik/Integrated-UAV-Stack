@@ -5,7 +5,7 @@
 #include "crsf_serial.h"
 #include "ota.h"
 #include "fhss.h"
-#include "radio_sx1280.h"
+#include "radio.h"
 #include "hw_timer.h"
 #include <Arduino.h>
 #include <Preferences.h>
@@ -19,14 +19,19 @@ static uint32_t s_channelData[CRSF_NUM_CHANNELS];
 static uint16_t s_crsfChannels[CRSF_NUM_CHANNELS];
 static bool s_locked = false;
 static uint32_t s_lastPacketMs = 0;
+#if ELRS_USE_E28
+static uint32_t s_lastCrsfUs = 0;
+#endif
 #if ELRS_CLASSIC_BIND
 static bool s_bindMode = false;  // listening for BIND packet
 #endif
 
+#if !ELRS_USE_E28
 static void rxTimerCallback() {
     if (!s_locked) return;
     Crsf.sendRcChannels(s_crsfChannels);  // Send at packet rate when locked
 }
+#endif
 
 #if ELRS_CLASSIC_BIND
 static bool loadStoredUid(uint8_t* uid) {
@@ -50,11 +55,11 @@ void ELRS_RX_Setup() {
 #if ELRS_CLASSIC_BIND
     if (loadStoredUid(s_uid)) {
         s_bindMode = false;
-        Serial.println("[ELRS RX] Using stored UID (bound)");
+        if (auto log = GetLogSerial()) log->println("[ELRS RX] Using stored UID (bound)");
     } else {
         s_bindMode = true;
         memset(s_uid, 0, ELRS_UID_LEN);  // will be filled by BIND packet
-        Serial.println("[ELRS RX] Bind mode: waiting for TX...");
+        if (auto log = GetLogSerial()) log->println("[ELRS RX] Bind mode: waiting for TX...");
     }
 #else
     size_t len = strlen(ELRS_BIND_PHRASE);
@@ -75,22 +80,27 @@ void ELRS_RX_Setup() {
         s_crsfChannels[i] = CRSF_CHANNEL_VALUE_MID;
     }
 
-    Crsf.begin(&Serial1, CRSF_PIN_TX, CRSF_PIN_RX);
+    Crsf.begin(GetSerialByPort(CRSF_UART_PORT), CRSF_PIN_TX, CRSF_PIN_RX);
 
     if (!Radio.begin(s_uid)) {
-        Serial.println("[ELRS RX] Radio init failed");
+        if (auto log = GetLogSerial()) log->println("[ELRS RX] Radio init failed");
         return;
     }
     Radio.setFrequency(FHSSGetInitialFreq());  // sync channel for both bind and initial sync
     Radio.startReceive();
 
+#if !ELRS_USE_E28
     HwTimerInit(rxTimerCallback);
     HwTimerSetIntervalUs(ELRS_PACKET_INTERVAL_US);
     HwTimerStart();
-#if ELRS_CLASSIC_BIND
-    Serial.println(s_bindMode ? "[ELRS RX] Listening for BIND on sync channel" : "[ELRS RX] Started, waiting for sync");
 #else
-    Serial.println("[ELRS RX] Started, waiting for sync");
+    s_lastCrsfUs = micros();
+#endif
+#if ELRS_CLASSIC_BIND
+    if (auto log = GetLogSerial())
+        log->println(s_bindMode ? "[ELRS RX] Listening for BIND on sync channel" : "[ELRS RX] Started, waiting for sync");
+#else
+    if (auto log = GetLogSerial()) log->println("[ELRS RX] Started, waiting for sync");
 #endif
 }
 
@@ -102,7 +112,7 @@ void ELRS_RX_Loop() {
             if (Radio.readPacket((uint8_t*)&pkt, ELRS_PACKET_SIZE)) {
                 if (OtaValidateBindPacket(&pkt, s_uid)) {
                     storeUid(s_uid);
-                    Serial.println("[ELRS RX] Bound! Restarting with new UID...");
+                    if (auto log = GetLogSerial()) log->println("[ELRS RX] Bound! Restarting with new UID...");
                     delay(100);
                     ESP.restart();
                 }
@@ -137,6 +147,16 @@ void ELRS_RX_Loop() {
 
     if (s_locked && (millis() - s_lastPacketMs > 500))
         s_locked = false;
+
+#if ELRS_USE_E28
+    if (s_locked) {
+        uint32_t now = micros();
+        if ((uint32_t)(now - s_lastCrsfUs) >= ELRS_PACKET_INTERVAL_US) {
+            s_lastCrsfUs = now;
+            Crsf.sendRcChannels(s_crsfChannels);
+        }
+    }
+#endif
 }
 
 #endif
