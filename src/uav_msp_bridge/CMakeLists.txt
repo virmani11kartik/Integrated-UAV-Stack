@@ -57,11 +57,25 @@ ament_target_dependencies(launch_node
   diagnostic_msgs
 )
 
+# uros node
+add_executable(uros_bridge_node 
+  src/uros_bridge_node.cpp
+)
+
+ament_target_dependencies(uros_bridge_node
+  rclcpp
+  std_msgs
+  sensor_msgs
+  geometry_msgs
+  diagnostic_msgs
+)
+
 # Install executables
 install(TARGETS
   telemetry_node
   arming_node
   launch_node
+  uros_bridge_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
