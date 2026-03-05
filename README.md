@@ -31,12 +31,15 @@ The system is designed to ensure:
 
 ### Full System Demo — Sim to Real Control Path
 RL policy inference → ROS 2 arbitration → MSP → Betaflight → FC actuation  
-(assets/sim.gif)
-(assets/output.gif)
+
+![Simulation](assets/sim.gif)
+
+![Real System Output](assets/output.gif)
 
 ### Hover Test
 Stability test under autonomous control  
-(assets/demo.gif)
+
+![Hover Test](assets/demo.gif)
 
 ---
 
