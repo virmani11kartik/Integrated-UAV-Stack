@@ -30,7 +30,6 @@ The system is designed to ensure:
 ## Demo Videos
 
 ### Full System Demo — Sim to Real Control Path
-RL policy inference → ROS 2 arbitration → MSP → Betaflight → FC actuation  
 
 ![Simulation](assets/sim.gif)
 
