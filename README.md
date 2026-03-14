@@ -41,6 +41,9 @@ Stability test under autonomous control
 ![Hover Test](assets/demo.gif)
 
 ---
+### Outdoor Flight Test
+Stability test under manual control  
+![Flight](assets/fly.gif)
 
 ## System Architecture
 
