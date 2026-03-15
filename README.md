@@ -30,20 +30,20 @@ The system is designed to ensure:
 ## Demo Videos
 
 ### Full System Demo — Sim to Real Control Path
-RL policy inference → ROS 2 arbitration → MSP → Betaflight → FC actuation  
 
-<video controls src="https://github.com/virmani11kartik/RL_uav_ws/blob/main/assets/sim.MP4" title="Full System Demo"></video>
+![Simulation](assets/sim.gif)
 
-### Hardware State Feedback
-Visual feedback for armed, idle, and fallback states  
-<video controls src="https://github.com/virmani11kartik/RL_uav_ws/blob/main/assets/IMG_0236.MOV" title="Hardware State Feedback"></video>
+![Real System Output](assets/output.gif)
 
 ### Hover Test
 Stability test under autonomous control  
 
-<video controls src="https://github.com/virmani11kartik/RL_uav_ws/blob/main/assets/IMG_0456.MOV" title="Hover Test"></video>
+![Hover Test](assets/demo.gif)
 
 ---
+### Outdoor Flight Test
+Stability test under manual control  
+![Flight](assets/fly.gif)
 
 ## System Architecture
 
