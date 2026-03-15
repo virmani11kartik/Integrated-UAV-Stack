@@ -1,4 +1,4 @@
-// Simple interval timer for ELRS packet rate (ESP32-C3)
+// Simple interval timer for ELRS packet rate
 #pragma once
 
 #include "config.h"

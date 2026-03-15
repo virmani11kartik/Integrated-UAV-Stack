@@ -1,4 +1,4 @@
-// ELRS config for ESP32-C3 (TX and RX)
+// ELRS TX config for ESP32-WROOM (RX is off-the-shelf ELRS receiver)
 #pragma once
 
 #include <Arduino.h>
@@ -38,12 +38,13 @@
 #define E28_CONFIG_ON_BOOT 1
 #define E28_AUX_WAIT_MS    200
 
-// E28 UART pins (ESP32-C3). Set to -1 to use default UART pins.
+// E28 UART pins (ESP32-WROOM). Set to -1 to use default UART pins.
+// GPIO 6-11 are flash pins on WROOM — do not use.
 #define E28_PIN_TX  4
 #define E28_PIN_RX  5
-#define E28_PIN_M0  6
-#define E28_PIN_M1  7
-#define E28_PIN_M2  10
+#define E28_PIN_M0  25
+#define E28_PIN_M1  26
+#define E28_PIN_M2  27
 #define E28_PIN_AUX 18
 
 #define E28_SPED   ((uint8_t)((E28_UART_PARITY << 6) | (E28_UART_BAUD_CODE << 3) | (E28_AIR_RATE_CODE)))

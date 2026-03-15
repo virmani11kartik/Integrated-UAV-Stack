@@ -1,4 +1,4 @@
-// ELRS Transmitter and Receiver for ESP32-C3
+// ELRS Transmitter for ESP32-WROOM
 // Computer (UART CRSF) -> TX -> RF (ELRS) -> RX -> Flight controller (UART CRSF)
 
 #include <Arduino.h>
