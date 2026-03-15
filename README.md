@@ -36,9 +36,11 @@ The system is designed to ensure:
 ![Real System Output](assets/output.gif)
 
 ### Hover Test
-Stability test under autonomous control  
+Stability test under autonomous control
 
 ![Hover Test](assets/demo.gif)
+
+![Hover Test 2](assets/hover.gif)
 
 ---
 ### Outdoor Flight Test
