@@ -29,6 +29,7 @@
 
 #if TX_CONTROL_MODE == 0
 // -------- IMU & Potentiometer Configuration --------
+
 #define IMU_TYPE_MPU6050 0
 #define IMU_TYPE_BNO085 1
 #define IMU_TYPE IMU_TYPE_BNO085         // Choose default IMU type
@@ -117,3 +118,17 @@ enum OutputProtocol {
 
 #endif // CONFIG_H
 
+#ifdef F411_FC
+// motor mapping
+#define M1 14
+#define M2 15
+#define M3 16
+#define M4 17
+// wired comm
+#define TX 30
+#define RX 31
+#define IMU_SCL 42
+#define IMU_SDA 43
+#define IMU_INT 45
+#define CURRNET_SENSOR 13
+#endif F411_FC

@@ -1,3 +1,9 @@
+/*
+Design docs: SX1281 based LoRa transmission
+Schema: [Aux/val]
+[throttle, yaw, pitch, row]
+*/
+
 #include <Arduino.h>
 #include <esp_now.h>
 #include <WiFi.h>
